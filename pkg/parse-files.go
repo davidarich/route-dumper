@@ -10,7 +10,7 @@ import (
 
 func ParseFiles(files []string) []string {
 	for _, file := range files {
-		showFileList := true
+		showFileList := false
 		if showFileList {
 			fmt.Println(file)
 		}
@@ -26,15 +26,14 @@ func ParseFiles(files []string) []string {
 
 		nsResolver := visitor.NewNamespaceResolver()
 
-
-		visitor := visitor.PrettyJsonDumper{
+		annotationRouteDumper := AnnotationRouteDumper{
 			Writer:     os.Stdout,
 			NsResolver: nsResolver,
 		}
 
 		rootNode := parser.GetRootNode()
-		rootNode.Walk(&visitor)
-		
+		rootNode.Walk(&annotationRouteDumper)
+
 	}
 	return files
 }
