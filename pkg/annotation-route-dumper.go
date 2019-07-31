@@ -3,13 +3,13 @@ package pkg
 
 import (
 	"fmt"
-	"github.com/z7zmey/php-parser/visitor"
-	"io"
-	"reflect"
-
 	"github.com/z7zmey/php-parser/freefloating"
 	"github.com/z7zmey/php-parser/node"
+	"github.com/z7zmey/php-parser/visitor"
 	"github.com/z7zmey/php-parser/walker"
+	"io"
+	"reflect"
+	"strings"
 )
 
 type AnnotationRouteDumper struct {
@@ -42,9 +42,23 @@ func (d *AnnotationRouteDumper) EnterNode(w walker.Walkable) bool {
 
 	nodeType := reflect.TypeOf(n).String()
 
+	// only care about Class and ClassMethod nodes
 	if nodeType == "*stmt.Class" || nodeType == "*stmt.ClassMethod" {
-		fmt.Fprint(d.Writer, n.Attributes()["PhpDocComment"])
-		fmt.Fprintln(d.Writer)
+
+		// get the node attributes
+		attributes := n.Attributes()
+		// make there is a PhpDocComment attribute
+		if phpDocBlock, ok := attributes["PhpDocComment"]; ok {
+			// cast interface{} to string
+			phpDocBlockString := fmt.Sprintf("%v", phpDocBlock)
+
+			if strings.Contains(phpDocBlockString, "@Route") {
+				_, route := ExtractRoute(phpDocBlockString)
+				fmt.Fprint(d.Writer, route)
+				fmt.Fprintln(d.Writer, "")
+			}
+		}
+
 	}
 
 	if d.isChildNode {

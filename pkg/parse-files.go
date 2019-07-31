@@ -10,19 +10,14 @@ import (
 
 func ParseFiles(files []string) []string {
 	for _, file := range files {
-		showFileList := false
-		if showFileList {
-			fmt.Println(file)
-		}
 
 		src, _ := ioutil.ReadFile(file)
 
 		parser := php7.NewParser(src)
 		parser.Parse()
 		for _, e := range parser.GetErrors() {
-			fmt.Println(e)
+			fmt.Println("Error: ", e)
 		}
-		fmt.Println(src)
 
 		nsResolver := visitor.NewNamespaceResolver()
 
